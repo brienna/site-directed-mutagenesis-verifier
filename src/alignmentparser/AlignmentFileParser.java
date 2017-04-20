@@ -6,16 +6,19 @@ import java.io.*;
 import alignmentparser.json.*;
 
 /**
- * Prompts user to upload alignment file, then parses the file for query, 
- * midline, and subject sequences. 
+ * Prompts user to provide path to alignment file, then parses the file for 
+ * information needed to create subject and query and alignment objects.
  * @author Brienna
  *
  */
 public class AlignmentFileParser {
 	private static Scanner sc = new Scanner(System.in);
 	private File alignmentFile;
+	private Query query;
+	private Subject subject;
+	private String midline;
 	
-	public void uploadFile() {
+	private void uploadFile() {
 		// Prompt user to input a Path object for the file
 		System.out.print("Input path of BLAST alignment file: ");
 		String s = sc.nextLine();  // read the whole line
@@ -33,7 +36,7 @@ public class AlignmentFileParser {
 	
 	// change the try and catch block to throwing
 	// because i'm not actually doing anything here to handle the exception?
-	public JSONObject readFile() {
+	private JSONObject readFile() {
 		StringBuilder sb = new StringBuilder();
 		// Connect character input stream to file
 		try (BufferedReader in = new BufferedReader(
@@ -53,6 +56,7 @@ public class AlignmentFileParser {
 	
 	public void parseFile() {
 		JSONObject json = readFile();
+		
 		// Access nested fields
 		JSONArray level2 = json.getJSONArray("BlastOutput2");
 		JSONObject level3 = level2.getJSONObject(0);
@@ -62,17 +66,49 @@ public class AlignmentFileParser {
 		JSONObject level7 = level6.getJSONObject(0);
 		JSONArray level8 = level7.getJSONArray("hits");
 		JSONObject level9 = level8.getJSONObject(0);
+		// Get hsps info section
 		JSONArray level10 = level9.getJSONArray("hsps");
-		JSONObject level11 = level10.getJSONObject(0);
+		JSONObject hsps = level10.getJSONObject(0);
+		// Get description info section
+		JSONArray level10_2 = level9.getJSONArray("description");
+		JSONObject description = level10_2.getJSONObject(0);
 		
-		String querySeq = level11.getString("qseq");
-		String subjectSeq = level11.getString("hseq");
-		String midline = level11.getString("midline");
-		System.out.println(querySeq);
-		System.out.println(midline);
-		System.out.println(subjectSeq);
+		// Set query, subject, and midline objects
+		setQuery(hsps);
+		setSubject(hsps, description);
+		midline = hsps.getString("midline");
 	}
 	
+	private void setQuery(JSONObject info) {
+		String qseq = info.getString("qseq");
+		int from = info.getInt("query_from");
+		int to = info.getInt("query_to");
+		query = new Query(qseq, from, to);
+		System.out.println(query);
+	}
+	
+	private void setSubject(JSONObject info, JSONObject moreInfo) {
+		String hseq = info.getString("hseq");
+		String id = moreInfo.getString("accession");  
+		int from = info.getInt("hit_from");
+		int to = info.getInt("hit_to");
+		subject = new Subject(id, hseq, from, to);
+		System.out.println(subject);
+	}
+	
+	public Query getQuery() {
+		return query;
+	}
+	
+	public Subject getSubject() {
+		return subject;
+	}
+	
+	public String getMidline() {
+		return midline;
+	}
+	
+	// delete this after creating AlignmentAnalyzer class or something like that
 	public static void main(String[] args) {
 		AlignmentFileParser parser = new AlignmentFileParser();	
 		parser.uploadFile();
