@@ -1,0 +1,76 @@
+{
+"BlastOutput2": [
+{
+    "report": {
+      "program": "blastn",
+      "version": "BLASTN 2.6.0+",
+      "reference": "Zheng Zhang, Scott Schwartz, Lukas Wagner, and Webb Miller (2000), \"A greedy algorithm for aligning DNA sequences\", J Comput Biol 2000; 7(1-2):203-14.",
+      "search_target": {
+        "subjects": [
+          "NM_080704"
+        ]
+      },
+      "params": {
+        "expect": 10,
+        "sc_match": 1,
+        "sc_mismatch": -2,
+        "gap_open": 0,
+        "gap_extend": 0,
+        "filter": "L;m;"
+      },
+      "results": {
+        "bl2seq": [
+          {
+            "query_id": "Query_73063",
+            "query_len": 786,
+            "hits": [
+              {
+                "num": 1,
+                "description": [
+                  {
+                    "id": "gi|117306161|ref|NM_080704.3|",
+                    "accession": "NM_080704",
+                    "title": "Homo sapiens transient receptor potential cation channel subfamily V member 1 (TRPV1), transcript variant 1, mRNA",
+                    "taxid": 9606,
+                    "sciname": "Homo sapiens"
+                  }
+                ],
+                "len": 4191,
+                "hsps": [
+                  {
+                    "num": 1,
+                    "bit_score": 1291.93,
+                    "score": 699,
+                    "evalue": 0,
+                    "identity": 748,
+                    "query_from": 1,
+                    "query_to": 786,
+                    "query_strand": "Plus",
+                    "hit_from": 1710,
+                    "hit_to": 2495,
+                    "hit_strand": "Plus",
+                    "align_len": 788,
+                    "gaps": 4,
+                    "qseq": "ATCCTGTCTGTGTTAGGAG-AGTCTACTTC-TTAACNGAGGGATTCANTNTTTCCTGCANAGGCGGCCGTCNATGAANACCCTGTTTGTGGACAGCTACNGNGAGATGCTTTTNTTTCTGCAGTCACTGTTCATGCTGGCCACCGTGGTGCTGTACTTCANCCACCTCAAGGAGTATGTGGCTTCCATGGTATTCTCCCTGGCCTTGGGCTGGNCCAACATGCTCTACTACNCCCGCGGTTTCCAGCAGANGGGCATCTATGCCGTCATGATANANAANATGATCCTGAGAGACCTGTGCCGTTTCATGTTTGTCTACGTCGTCTTNTTGTTCGGNTTTTCCACAGCGGNGGTGACGCTGATTGAAGACGGNAANAATGACTCCCTGCCGTCTGAGTCCACGTCGCACAGGNGGNGGGGGCCTGCCTGCANGCCCCCCGATAGCTCCTACAACAGCCTGTACTCCACCTGCCTGGAGCTGTTCAAGTTCACCATCGGCATGGGCGACCTGGANTTCACTGANAACTATGACTTCAAGGCTGTCTTCATCATCCTGCTGCTGGCCTATGTAATTCTCACCTACATCCTCNTGCTCAACATGCTNATCGCCCTCNTGGGTGAGACTGTCAACAAGATCGCACAGNNAGAGCAAGAACATCTGGAANCTGCAGAGAGCCATCACCATCCTGNACACGGAGAAGAGCTTCCTTAAGTGCATGAGGAAGGCCTTCCGCTCAGGCAAGCTGCNTGCANGTGGGGTACACACCTGATGGCAAGGACGACTACCGG",
+                    "hseq": "ATCCTGTCTGTGTTAGGAGGAGTCTACTTCTTTTTCCGAGGGATTCAGTATTTCCTGCAGAGGCGGCCGTCGATGAAGACCCTGTTTGTGGACAGCTACAGTGAGATGCTTTTCTTTCTGCAGTCACTGTTCATGCTGGCCACCGTGGTGCTGTACTTCAGCCACCTCAAGGAGTATGTGGCTTCCATGGTATTCTCCCTGGCCTTGGGCTGGACCAACATGCTCTACTACACCCGCGGTTTCCAGCAGATGGGCATCTATGCCGTCATGATAGAGAAGATGATCCTGAGAGACCTGTGCCGTTTCATGTTTGTCTACATCGTCTTCTTGTTCGGGTTTTCCACAGCGGTGGTGACGCTGATTGAAGACGGGAAGAATGACTCCCTGCCGTCTGAGTCCACGTCGCACAGGTGGCGGGGGCCTGCCTGCAGGCCCCCCGATAGCTCCTACAACAGCCTGTACTCCACCTGCCTGGAGCTGTTCAAGTTCACCATCGGCATGGGCGACCTGGAGTTCACTGAGAACTATGACTTCAAGGCTGTCTTCATCATCCTGCTGCTGGCCTATGTAATTCTCACCTACATCCTCCTGCTCAACATGCTCATCGCCCTCATGGGTGAGACTGTCAACAAGATCGCACAGG-AGAGCAAGAACATCTGGAAGCTGCAGAGAGCCATCACCATCCTGGACACGGAGAAGAGCTTCCTTAAGTGCATGAGGAAGGCCTTCCGCTCAGGCAAGCTGC-TGCAGGTGGGGTACACACCTGATGGCAAGGACGACTACCGG",
+                    "midline": "||||||||||||||||||| |||||||||| ||  | |||||||||| | ||||||||| ||||||||||| ||||| ||||||||||||||||||||| | ||||||||||| |||||||||||||||||||||||||||||||||||||||||||||| |||||||||||||||||||||||||||||||||||||||||||||||||||| ||||||||||||||||| |||||||||||||||||| |||||||||||||||||||||| | || ||||||||||||||||||||||||||||||||||||||| ||||||| |||||||| ||||||||||||| ||||||||||||||||||||| || |||||||||||||||||||||||||||||||||||| || ||||||||||||||| ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| |||||||| |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| ||||||||||||| ||||||||| |||||||||||||||||||||||||||||  ||||||||||||||||||| |||||||||||||||||||||||| ||||||||||||||||||||||||||||||||||||||||||||||||||||||||| |||| ||||||||||||||||||||||||||||||||||||"
+                  }
+                ]
+              }
+            ],
+            "stat": {
+              "hsp_len": 0,
+              "eff_space": 3224644,
+              "kappa": 0.46,
+              "lambda": 1.28,
+              "entropy": 0.85
+            }
+          }
+        ]
+      }
+    }
+  }
+]
+}
+
+

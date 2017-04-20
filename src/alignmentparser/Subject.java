@@ -1,7 +1,9 @@
+package alignmentparser;
+
 import java.net.*;
 import java.io.*;
-import java.util.Scanner;
 import java.util.regex.*;
+import alignmentparser.json.*;
 
 public class Subject {
   private String id;
@@ -34,7 +36,7 @@ public class Subject {
   // https://www.ncbi.nlm.nih.gov/books/NBK25498/#chapter3.Application_2_Converting_access
   private void getEntireSubject() {
     try {
-      // e search
+      // e post to Entrez
       String link = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/epost.fcgi?db=nucleotide&id=" + id;
       URLConnection connection = new URL(link).openConnection();
       connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
@@ -68,7 +70,7 @@ public class Subject {
         System.out.println(webEnv);
       }
 
-      // e fetch
+      // e fetch to Entrez
       link = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nucleotide&query_key="+queryKey+"&WebEnv="+webEnv+"&usehistory=y";
       connection = new URL(link).openConnection();
       connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
@@ -79,7 +81,8 @@ public class Subject {
       while ((line = r.readLine()) != null) {
         sb.append(line);
       }
-      System.out.println(sb.toString());
+      JSONObject json = new JSONObject(sb.toString());
+      System.out.println(json);
     } catch (Exception e) {
       System.out.println(e);
     }
