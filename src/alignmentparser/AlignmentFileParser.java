@@ -18,7 +18,7 @@ public class AlignmentFileParser {
 	private Subject subject;
 	private String midline;
 	
-	private void uploadFile() {
+	public void uploadFile() {
 		// Prompt user to input a Path object for the file
 		System.out.print("Input path of BLAST alignment file: ");
 		String s = sc.nextLine();  // read the whole line
@@ -106,12 +106,5 @@ public class AlignmentFileParser {
 	
 	public String getMidline() {
 		return midline;
-	}
-	
-	// delete this after creating AlignmentAnalyzer class or something like that
-	public static void main(String[] args) {
-		AlignmentFileParser parser = new AlignmentFileParser();	
-		parser.uploadFile();
-		parser.parseFile();
 	}
 }
