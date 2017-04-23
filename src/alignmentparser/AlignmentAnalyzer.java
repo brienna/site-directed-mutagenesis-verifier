@@ -28,6 +28,7 @@ public class AlignmentAnalyzer {
 		// Analyze alignment object
 		// analyzer.identifyMismatches();
 		analyzer.identifyResidue(547);
+		analyzer.identifyMismatches();
 	}
 	
 	public AlignmentAnalyzer(Query q, Subject s, String m) {
@@ -35,6 +36,22 @@ public class AlignmentAnalyzer {
 		subject = s;
 		midline = m;
 	}
+	
+	/**
+	  * Prints out mismatches in the alignment of subject and query. 
+	  * Base positions are referenced from subject.
+	  */
+	  private void identifyMismatches() {
+	    // Loops through each character in the midline
+	    for (int i = 0; i < midline.length(); i++) {
+	      // If character is a space, denoting a mismatch
+	      if (midline.charAt(i) == ' ' && query.getSequence().charAt(i) != 'N') {
+	        // Print out the characters at the same position in subject & query
+	        System.out.println(subject.getStart() + i);
+	        System.out.println(subject.getSequence().charAt(i) + ">" + query.getSequence().charAt(i));
+	      }
+	    }
+	  }
 	
 	private void identifyResidue(int pos) {
 		HashMap<String, ArrayList<String>> codons = assembleCodonMap();
