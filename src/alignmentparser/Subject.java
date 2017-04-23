@@ -10,13 +10,14 @@ import alignmentparser.json.JSONObject;
 import alignmentparser.json.XML;
 
 public class Subject {
-	private String id;
-	private String sequence;
+	private String id;  // GenBank accession number
+	private String sequence; 
 	// Position on subject where alignment with query begins, inclusive
 	private int start;
 	// Position on subject where alignment with query ends, inclusive
 	private int end;
 	private JSONObject record; // GenBank record
+	private int[] posOfCDS;  // nucleotide position at which cds begins
 	
 	public Subject(String accession, String hseq, int from, int to) {
 		id = accession;
@@ -24,6 +25,7 @@ public class Subject {
 		start = from;
 		end = to;
 		record = fetchRecord();
+		posOfCDS = parseForCDS();
 	}
 	
 	public String getId() {
@@ -42,12 +44,29 @@ public class Subject {
 		return end;
 	}
 	
+	public int[] getPosOfCDS() {
+		return posOfCDS;
+	}
+	
 	public String toString() {
 		return String.format("id: %s\n"
 				+ "hseq: %s\n"
 				+ "hit_from: %d\n"
 				+ "hit_to: %d", id, sequence, start, end);
     }
+	
+	private int[] parseForCDS() {
+		int[] posOfCDS = new int[2];
+		JSONObject seqInterval = record.getJSONObject("Bioseq-set").getJSONObject("Bioseq-set_seq-set").getJSONObject("Seq-entry").getJSONObject("Seq-entry_set")
+				.getJSONObject("Bioseq-set").getJSONObject("Bioseq-set_annot").getJSONObject("Seq-annot").getJSONObject("Seq-annot_data")
+				.getJSONObject("Seq-annot_data_ftable").getJSONObject("Seq-feat").getJSONObject("Seq-feat_location").getJSONObject("Seq-loc")
+				.getJSONObject("Seq-loc_int").getJSONObject("Seq-interval");
+
+		// seems like cds is one position off frame compared to genbank?
+		posOfCDS[0] = seqInterval.getInt("Seq-interval_from") + 1;
+		posOfCDS[1] = seqInterval.getInt("Seq-interval_to") + 1;
+		return posOfCDS;
+	}
 
 	private JSONObject fetchRecord() {
 		JSONObject rec = new JSONObject();
@@ -79,12 +98,12 @@ public class Subject {
 	      Matcher queryKeyMatcher = queryKeyPattern.matcher(result);
 	      if (queryKeyMatcher.find()) {
 	        queryKey = queryKeyMatcher.group(1);
-	        System.out.println(queryKey);
+	        //System.out.println(queryKey);
 	      }
 	      Matcher webEnvMatcher = webEnvPattern.matcher(result);
 	      if (webEnvMatcher.find()) {
 	        webEnv = webEnvMatcher.group(1);
-	        System.out.println(webEnv);
+	        //System.out.println(webEnv);
 	      }
 
 	      // e fetch to Entrez
@@ -102,7 +121,7 @@ public class Subject {
 	      }
 	      String s = sb.toString();
 	      rec = XML.toJSONObject(s);
-	      System.out.println(rec);
+	      //System.out.println(rec);
 	    } catch (Exception e) {
 	      System.out.println(e);
 	    }

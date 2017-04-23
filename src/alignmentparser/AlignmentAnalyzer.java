@@ -40,8 +40,7 @@ public class AlignmentAnalyzer {
 		HashMap<String, ArrayList<String>> codons = assembleCodonMap();
 		
 		// Set base position of first codon in the CDS 
-		// (this will be retrieved from GenBank later)
-	    int posOfCDS = 276;
+	    int posOfCDS = subject.getPosOfCDS()[0];
 	    // Adjust given codon count to account for any difference between CDS / query length
 	    // NOTE: Subtract 3 to account for conversion between codon count and base count
 	    int adjustedPos = (pos * 3) - (subject.getStart() - posOfCDS) - 3;

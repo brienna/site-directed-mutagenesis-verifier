@@ -84,7 +84,7 @@ public class AlignmentFileParser {
 		int from = info.getInt("query_from");
 		int to = info.getInt("query_to");
 		query = new Query(qseq, from, to);
-		System.out.println(query);
+		//System.out.println(query);
 	}
 	
 	private void setSubject(JSONObject info, JSONObject moreInfo) {
@@ -93,7 +93,7 @@ public class AlignmentFileParser {
 		int from = info.getInt("hit_from");
 		int to = info.getInt("hit_to");
 		subject = new Subject(id, hseq, from, to);
-		System.out.println(subject);
+		//System.out.println(subject);
 	}
 	
 	public Query getQuery() {
