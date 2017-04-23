@@ -14,7 +14,7 @@ public class AlignmentAnalyzer {
 	private String midline;
 	
 	public static void main(String[] args) {			
-		// Create alignment object
+		// Create alignment parser
 		AlignmentFileParser parser = new AlignmentFileParser();	
 		parser.uploadFile();
 		parser.parseFile();

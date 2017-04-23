@@ -25,7 +25,7 @@ public class AlignmentFileParser {
 		// Get Path object for the file
 		Path alignmentFilePath = Paths.get(s);
 		// Quit the program if the path leads to no file
-		if (Files.exists(alignmentFilePath)) {  
+		if (Files.exists(alignmentFilePath)) {
 			// Convert the Path object to a File object
 			alignmentFile = alignmentFilePath.toFile();
 		} else {
@@ -43,7 +43,7 @@ public class AlignmentFileParser {
 								 new FileReader(alignmentFile))) {
 			// Read and append records in file to StringBuilder
 			String line;
-			while ((line = in.readLine()) != null) {  
+			while ((line = in.readLine()) != null) {
 				sb.append(line);
 			}
 		} catch (IOException e) {  
