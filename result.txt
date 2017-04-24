@@ -1,0 +1,10 @@
+Alignment analysis result
+
+RESIDUE AT 547: leucine
+
+5 MISMATCHES:
+1729G>-
+1740T>-
+1743T>A
+1744T>A
+2028A>G

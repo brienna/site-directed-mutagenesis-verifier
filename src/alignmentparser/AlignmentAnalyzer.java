@@ -1,5 +1,6 @@
 package alignmentparser;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -13,7 +14,7 @@ public class AlignmentAnalyzer {
 	private Subject subject;
 	private String midline;
 	
-	public static void main(String[] args) {			
+	public static void main(String[] args) throws IOException {			
 		// Create alignment parser
 		AlignmentFileParser parser = new AlignmentFileParser();	
 		parser.uploadFile();
@@ -24,11 +25,16 @@ public class AlignmentAnalyzer {
 		Subject s = parser.getSubject();
 		String m = parser.getMidline();
 		AlignmentAnalyzer analyzer = new AlignmentAnalyzer(q, s, m);
+		// Create string to be printed out
+		String result = "Alignment analysis result";
 
 		// Analyze alignment object
-		// analyzer.identifyMismatches();
-		analyzer.identifyResidue(547);
-		analyzer.identifyMismatches();
+		String residue = analyzer.identifyResidue(547);
+		String mismatches = analyzer.identifyMismatches();
+		result = result + residue + mismatches;
+		
+		// Print analysis
+		analyzer.printAnalysisToFile(result);
 	}
 	
 	public AlignmentAnalyzer(Query q, Subject s, String m) {
@@ -37,23 +43,46 @@ public class AlignmentAnalyzer {
 		midline = m;
 	}
 	
+	public void printAnalysisToFile(String result) throws IOException {
+		// Connect to a file with a buffer
+		PrintWriter out = new PrintWriter(
+						   new BufferedWriter(  
+						   new FileWriter("result.txt")));
+		// NOTE: If the output file doesn't exist when the FileWriter object
+		// is created, it's created automatically. If it does exist, it's overwritten.
+		
+		out.print(result);
+		
+		// Flush data to the file and close the output stream
+		out.close();
+	}
+	
 	/**
-	  * Prints out mismatches in the alignment of subject and query. 
-	  * Base positions are referenced from subject.
+	  * Returns a string containing information about mismatches in the alignment,
+	  * which are denoted by spaces in the midline.
 	  */
-	  private void identifyMismatches() {
+	  private String identifyMismatches() {
+		  String mismatches = "MISMATCHES:\n";
+		  int total = 0;
+		
 	    // Loops through each character in the midline
 	    for (int i = 0; i < midline.length(); i++) {
 	      // If character is a space, denoting a mismatch
 	      if (midline.charAt(i) == ' ' && query.getSequence().charAt(i) != 'N') {
-	        // Print out the characters at the same position in subject & query
-	        System.out.println(subject.getStart() + i);
-	        System.out.println(subject.getSequence().charAt(i) + ">" + query.getSequence().charAt(i));
+	    	  total++;
+	    	  // Print out the characters at the same position in subject & query
+	    	  int pos = subject.getStart() + i;
+	    	  String mismatch = subject.getSequence().charAt(i) + ">" + query.getSequence().charAt(i);
+	    	  mismatches = mismatches + pos + mismatch + "\n";
 	      }
 	    }
+	    mismatches = "\n\n" + total + " " + mismatches;
+	    return mismatches;
 	  }
 	
-	private void identifyResidue(int pos) {
+	private String identifyResidue(int pos) {
+		String residue = "\n\nRESIDUE AT " + pos + ": ";
+		
 		HashMap<String, ArrayList<String>> codons = assembleCodonMap();
 		
 		// Set base position of first codon in the CDS 
@@ -81,9 +110,11 @@ public class AlignmentAnalyzer {
 	    // Identify residue that codon translates to
 	    for (String codon : codons.keySet()) {
 	      if (codons.get(codon).contains(found)) {
-	        System.out.println("Residue is " + codon);
+	    	  residue = residue + codon;
 	      }
 	    }
+	    
+	    return residue;
 	}
 	
 	private HashMap<String, ArrayList<String>> assembleCodonMap() {
