@@ -14,6 +14,12 @@ public class AlignmentAnalyzer {
 	private Subject subject;
 	private String midline;
 	
+	public AlignmentAnalyzer(Query q, Subject s, String m) {
+		query = q;
+		subject = s;
+		midline = m;
+	}
+	
 	public static void main(String[] args) throws IOException {			
 		// Create alignment parser
 		AlignmentFileParser parser = new AlignmentFileParser();	
@@ -25,24 +31,21 @@ public class AlignmentAnalyzer {
 		Subject s = parser.getSubject();
 		String m = parser.getMidline();
 		AlignmentAnalyzer analyzer = new AlignmentAnalyzer(q, s, m);
-		// Create string to be printed out
-		String result = "Alignment analysis result";
 
 		// Analyze alignment object
 		String residue = analyzer.identifyResidue(547);
 		String mismatches = analyzer.identifyMismatches();
-		result = result + residue + mismatches;
+		String result = "Alignment analysis result" + residue + mismatches;
 		
 		// Print analysis
 		analyzer.printAnalysisToFile(result);
 	}
 	
-	public AlignmentAnalyzer(Query q, Subject s, String m) {
-		query = q;
-		subject = s;
-		midline = m;
-	}
-	
+	/**
+	 * Writes result of analysis to file.
+	 * @param result
+	 * @throws IOException
+	 */
 	public void printAnalysisToFile(String result) throws IOException {
 		// Connect to a file with a buffer
 		PrintWriter out = new PrintWriter(
@@ -62,20 +65,31 @@ public class AlignmentAnalyzer {
 	  * which are denoted by spaces in the midline.
 	  */
 	  private String identifyMismatches() {
+		  String querySeq = query.getSequence();
+		  String subjectSeq = subject.getSequence();
 		  String mismatches = "MISMATCHES:\n";
 		  int total = 0;
 		
-	    // Loops through each character in the midline
+	    // Loop through each character in the midline
 	    for (int i = 0; i < midline.length(); i++) {
-	      // If character is a space, denoting a mismatch
-	      if (midline.charAt(i) == ' ' && query.getSequence().charAt(i) != 'N') {
+	      // If midline character is a space (mismatch) and query character is one of these, ACTG-
+	      // (the latter ensures we ignore sequencing errors manifesting as N or other letters)
+	      if (midline.charAt(i) == ' ' && querySeq.substring(i, i + 1).matches("[ACTG-]")) {
 	    	  total++;
-	    	  // Print out the characters at the same position in subject & query
+	    	  // Print mutation in mutation notation 
+	    	  String mismatch = new String();
+	    	  if (subjectSeq.charAt(i) == '-') {
+	    		  mismatch = "ins" + querySeq.charAt(i);
+	    	  } else if (querySeq.charAt(i) == '-') {
+	    		  mismatch = "del" + subjectSeq.charAt(i);
+	    	  } else {
+	    		  mismatch = subjectSeq.charAt(i) + ">" + querySeq.charAt(i);
+	    	  }
 	    	  int pos = subject.getStart() + i;
-	    	  String mismatch = subject.getSequence().charAt(i) + ">" + query.getSequence().charAt(i);
 	    	  mismatches = mismatches + pos + mismatch + "\n";
 	      }
 	    }
+	    
 	    mismatches = "\n\n" + total + " " + mismatches;
 	    return mismatches;
 	  }
