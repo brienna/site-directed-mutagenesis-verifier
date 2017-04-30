@@ -20,7 +20,7 @@ public class AlignmentAnalyzer {
 		midline = m;
 	}
 	
-	public static void main(String[] args) throws IOException {			
+	public static void beginAnalysis() throws IOException {			
 		// Create alignment parser
 		AlignmentFileParser parser = new AlignmentFileParser();	
 		parser.uploadFile();
