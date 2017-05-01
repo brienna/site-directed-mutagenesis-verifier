@@ -37,7 +37,6 @@ public class Main {
 		
 		// Proceed with user's choice of how to use program
 		if (choice == 1) {
-			System.out.println("You chose to upload an alignment file downloaded from BLASTN.");
 			AlignmentAnalyzer.beginAnalysis(args);
 		} 
 		

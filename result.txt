@@ -1,5 +1,7 @@
 Site-Directed Mutagenesis Verifier
-leucine null 
+
+TARGET MUTATIONS:
+M547L - succeeded
 
 5 MISMATCHES:
 1729delG
