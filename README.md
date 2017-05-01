@@ -1,11 +1,17 @@
 # Site-Directed Mutagenesis Verifier (SDMV)
 
-SDMV quickly verifies the success of any site-directed mutagenesis. This program has two usage options: 
+SDMV quickly verifies the success of site-directed mutagenesis with two usage options: 
 
 1. Upload an alignment file downloaded from BLASTN. 
 2. Copy and paste query sequence and reference sequence accession number (easiest).
 
-#### How to obtain a BLASTN alignment file:
+### To begin the program: 
+
+Command line: `java alignmentparser.Main [mutation1] [mutation2]`
+
+At least one mutation argument is required, and it must be formatted in amino acid mutation notation, e.g. L547M. 
+
+### How to obtain a BLASTN alignment file:
 
 Since option 1 consists of uploading an alignment file downloaded from BLASTN, you need to obtain the alignment file first. 
 
@@ -15,9 +21,9 @@ What you will need:
 - query sequence (your mutated sequence)
 - reference sequence or its accession number
 
-This example uses Safari, a query sequence copied from a .seq file, and a reference sequence accession number. The query sequence is a segment of the human TRPV1 protein that is supposed to have undergone site-directed mutagenesis, with the amino acid at position 547 mutated from leucine (TTG) to methionine (ATG). 
+This example uses Safari, a query sequence copied from a .seq file, and a reference sequence accession number. The query sequence is a segment of the human TRPV1 protein that is supposed to have undergone site-directed mutagenesis with the mutation L547M. 
 
-Steps to obtain the alignment file: 
+Instructions:
 
 ![Steps for obtaining the alignment file](/img/blastn.png)
 

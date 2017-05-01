@@ -3,6 +3,7 @@ package alignmentparser;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.regex.*;
 
 /**
  * Analyzes the alignment object created by AlignmentFileParser.
@@ -20,7 +21,7 @@ public class AlignmentAnalyzer {
 		midline = m;
 	}
 	
-	public static void beginAnalysis() throws IOException {			
+	public static void beginAnalysis(String[] targetMutations) throws IOException {			
 		// Create alignment parser
 		AlignmentFileParser parser = new AlignmentFileParser();	
 		parser.uploadFile();
@@ -33,9 +34,14 @@ public class AlignmentAnalyzer {
 		AlignmentAnalyzer analyzer = new AlignmentAnalyzer(q, s, m);
 
 		// Analyze alignment object
-		String residue = analyzer.identifyResidue(547);
 		String mismatches = analyzer.identifyMismatches();
-		String result = "Alignment analysis result" + residue + mismatches;
+		String[] residues = analyzer.identifyResidue(targetMutations);
+		StringBuilder sb = new StringBuilder();
+		for (String residue : residues) {
+			sb.append(residue + " ");
+		}
+		String residuesString = sb.toString();
+		String result = "Site-Directed Mutagenesis Verifier\n" + residuesString + mismatches;
 		
 		// Print analysis
 		analyzer.printAnalysisToFile(result);
@@ -94,41 +100,46 @@ public class AlignmentAnalyzer {
 	    return mismatches;
 	  }
 	
-	private String identifyResidue(int pos) {
-		String residue = "\n\nRESIDUE AT " + pos + ": ";
-		
+	private String[] identifyResidue(String[] targetMutations) {
+		// Extract position from each mutation
+		int[] positions = new int[targetMutations.length];
+		Pattern pattern = Pattern.compile("\\d+");
+		Matcher matcher;
+		for (int i = 0; i < targetMutations.length; i++) {
+			String mutation = targetMutations[i];
+			matcher = pattern.matcher(mutation);
+			if (matcher.find()) {
+				positions[i] = Integer.parseInt(matcher.group(0));
+			}
+		}
+	
+		String[] residues = new String[positions.length];
 		HashMap<String, ArrayList<String>> codons = assembleCodonMap();
 		
-		// Set base position of first codon in the CDS 
-	    int posOfCDS = subject.getPosOfCDS()[0];
-	    // Adjust given codon count to account for any difference between CDS / query length
-	    // NOTE: Subtract 3 to account for conversion between codon count and base count
-	    int adjustedPos = (pos * 3) - (subject.getStart() - posOfCDS) - 3;
-	    System.out.println(adjustedPos + subject.getStart());
-
-	    if (adjustedPos < 0) {
-	      System.out.println("Codon " + pos + " is not viewable in this alignment.");
-	      //System.out.println("You can view codons " + (posFirstCodon + 1) + " through " + ((2495 - 276) / 3));
-	    }
-
-	    // Get codon
-	    String found = "";
-	    String seq = query.getSequence();
-	    for (int i = 0; i < seq.length(); i += 3) {
-	      if (i == adjustedPos) {
-	        found = seq.substring(i, i + 3);
-	        System.out.println(found + " at " + (i + subject.getStart()));
-	      }
-	    }
-
-	    // Identify residue that codon translates to
-	    for (String codon : codons.keySet()) {
-	      if (codons.get(codon).contains(found)) {
-	    	  residue = residue + codon;
-	      }
-	    }
-	    
-	    return residue;
+		// Calculate base position in CDS that alignment begins at
+		int posOfQuery = subject.getStart() - subject.getPosOfCDS()[0];
+		
+		// For each position,
+		for (int j = 0; j < positions.length; j++) {
+			// Convert count from codon to base
+			int pos = (positions[j] * 3) - 3;
+			// Adjust position relative to alignment
+			int adjustedPos = pos - posOfQuery;	
+			// If position is inside alignment, extract target codon from alignment
+			if (adjustedPos < 0) {
+				System.out.println("Target mutation " + targetMutations[j] + " is outside alignment scope.");
+			} else {
+				String targetCodon = query.getSequence().substring(adjustedPos, adjustedPos + 3);
+				// Identify residue that target codon translates to 
+				for (String codon : codons.keySet()) {
+					if (codons.get(codon).contains(targetCodon)) {
+						residues[j] = codon;
+					}
+				}
+			}
+		}
+		
+	    return residues;
 	}
 	
 	private HashMap<String, ArrayList<String>> assembleCodonMap() {

@@ -1,6 +1,5 @@
-Alignment analysis result
-
-RESIDUE AT 547: leucine
+Site-Directed Mutagenesis Verifier
+leucine null 
 
 5 MISMATCHES:
 1729delG
