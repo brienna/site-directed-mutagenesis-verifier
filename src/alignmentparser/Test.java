@@ -26,7 +26,7 @@ public class Test {
 				+ "ACAAGATCGCACAGNNAGAGCAAGAACATCTGGAANCTGCAGAGAGCCATCACCATCCTGNACACGGAGAAGAGCTTCCT"
 				+ "TAAGTGCATGAGGAAGGCCTTCCGCTCAGGCAAGCTGCNTGCANGTGGGGTACACACCTGATGGCAAGGACGACTACCGG";
 		URL toBLAST = new URL("https://www.ncbi.nlm.nih.gov/blast/Blast.cgi?QUERY="+query
-				+ "&QUERY_BELIEVE_DEFLINE=false&ENTREZ_QUERY=NM_080704&DATABASE=nr&PROGRAM=blastn&FORMAT=Text&CMD=Put");
+				+ "&ENTREZ_QUERY=NM_080704&DATABASE=nr&PROGRAM=blastn&WORD_SIZE=28&FORMAT=Text&CMD=Put");
 		URLConnection connection = toBLAST.openConnection();
 		BufferedReader input = new BufferedReader(
 							new InputStreamReader(connection.getInputStream()));
@@ -48,7 +48,7 @@ public class Test {
 		System.out.println(rid);
 		input.close();
 		
-		// rid = "GJGH4HFK015"; for testing purposes to ensure the get request works, 
+		rid = "GMZMJ277015"; // for testing purposes to ensure the get request works, 
 		// until i have a second thread to monitor when put request completes
 		
 		// Get
@@ -64,10 +64,7 @@ public class Test {
 		
 		input.close();
 		
-		
-		// NOTE: Will need to fine tune request, because it seems to be sending back 
-		// fragmented alignments whereas Web Blast doesn't?
-		// NOTE 2: Will need to fix AlignmentFileParser so that the parsing is 
+		// NOTE: Will need to fix AlignmentFileParser so that the parsing is 
 		// flexible that it searches until it finds "hsps" or "description" etc, instead 
 		// of specifically being told to go down level by level 
 		// IMPORTANT NOTE: Need to add a second thread to monitor progress of Put, because 
