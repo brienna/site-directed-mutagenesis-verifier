@@ -21,16 +21,15 @@ public class AlignmentFileParser {
 		JSONObject level3 = level2.getJSONObject(0);
 		JSONObject level4 = level3.getJSONObject("report");
 		JSONObject level5 = level4.getJSONObject("results");
-		JSONArray level6 = level5.getJSONArray("bl2seq");
-		JSONObject level7 = level6.getJSONObject(0);
-		JSONArray level8 = level7.getJSONArray("hits");
-		JSONObject level9 = level8.getJSONObject(0);
+		JSONObject level6 = level5.getJSONObject("search");
+		JSONArray level7 = level6.getJSONArray("hits");
+		JSONObject level8 = level7.getJSONObject(0);
 		// Get hsps info section
-		JSONArray level10 = level9.getJSONArray("hsps");
-		JSONObject hsps = level10.getJSONObject(0);
+		JSONArray level9 = level8.getJSONArray("hsps");
+		JSONObject hsps = level9.getJSONObject(0);
 		// Get description info section
-		JSONArray level10_2 = level9.getJSONArray("description");
-		JSONObject description = level10_2.getJSONObject(0);
+		JSONArray level8_2 = level8.getJSONArray("description");
+		JSONObject description = level8_2.getJSONObject(0);
 		
 		// Set query, subject, and midline objects
 		setQuery(hsps);

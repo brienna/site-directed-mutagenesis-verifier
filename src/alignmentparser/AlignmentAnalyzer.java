@@ -1,6 +1,8 @@
 package alignmentparser;
 
 import java.io.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.*;
@@ -52,7 +54,11 @@ public class AlignmentAnalyzer {
 			}
 		}
 		String residuesString = sb.toString();
-		String result = "Site-Directed Mutagenesis Verifier\n\n" + residuesString + mismatches;
+		
+		// Calculate date
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+		LocalDateTime now = LocalDateTime.now(); //2016/11/16 12:08:43
+		String result = dtf.format(now) + "\nSite-Directed Mutagenesis Verifier\n\n" + residuesString + mismatches;
 		
 		// Print analysis
 		analyzer.printAnalysisToFile(result);

@@ -1,11 +1,11 @@
-Site-Directed Mutagenesis Verifier
+2017/05/08 14:39:41Site-Directed Mutagenesis Verifier
 
 TARGET MUTATIONS:
 M547L - succeeded
 
 5 MISMATCHES:
 1729delG
-1740delT
+1742T>A
 1743T>A
-1744T>A
+1744delT
 2028A>G
