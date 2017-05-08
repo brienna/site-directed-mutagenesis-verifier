@@ -76,7 +76,7 @@ public class Subject {
 	      String link = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/epost.fcgi?db=nucleotide&id=" + id;
 	      URLConnection connection = new URL(link).openConnection();
 	      connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
-	      connection.connect();
+	      connection.connect(); // inputstreamreader does this, can delete
 	      BufferedReader r  = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
 
 	      String webEnv = "";

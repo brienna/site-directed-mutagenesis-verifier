@@ -12,8 +12,8 @@ public class Test {
 	// https://biostars.org/p/83158/
 	// https://ncbi.github.io/blast-cloud/dev/api.html
 	// might be worth looking at alextblog.blogspot.cz/2012/05/ncbi-blast-jaxb-biojava-blasting-like.html
-	public static void main(String[] args) throws IOException {
-		// Put 
+	public static void main(String[] args) throws IOException, InterruptedException {
+		// Put request
 		// NOTE: prompt user to input query
 		String query = "ANNNAAGNNTGNNNATCCTGTCTGTGTTAGGAGAGTCTACTTCTTAACNGAGGGATTCANTNTTTCCTGCANAGGCGGCC"
 				+ "GTCNATGAANACCCTGTTTGTGGACAGCTACNGNGAGATGCTTTTNTTTCTGCAGTCACTGTTCATGCTGGCCACCGTGG"
@@ -25,44 +25,44 @@ public class Test {
 				+ "CATCCTGCTGCTGGCCTATGTAATTCTCACCTACATCCTCNTGCTCAACATGCTNATCGCCCTCNTGGGTGAGACTGTCA"
 				+ "ACAAGATCGCACAGNNAGAGCAAGAACATCTGGAANCTGCAGAGAGCCATCACCATCCTGNACACGGAGAAGAGCTTCCT"
 				+ "TAAGTGCATGAGGAAGGCCTTCCGCTCAGGCAAGCTGCNTGCANGTGGGGTACACACCTGATGGCAAGGACGACTACCGG";
-		URL toBLAST = new URL("https://www.ncbi.nlm.nih.gov/blast/Blast.cgi?QUERY="+query
-				+ "&ENTREZ_QUERY=NM_080704&DATABASE=nr&PROGRAM=blastn&WORD_SIZE=28&FORMAT=Text&CMD=Put");
-		URLConnection connection = toBLAST.openConnection();
-		BufferedReader input = new BufferedReader(
-							new InputStreamReader(connection.getInputStream()));
-		String inputLine;
-		// Retrieve Request ID
+		
+		String putBLAST = "https://www.ncbi.nlm.nih.gov/blast/Blast.cgi?QUERY="+query
+				+ "&ENTREZ_QUERY=NM_080704&DATABASE=nr&PROGRAM=blastn&WORD_SIZE=28&FORMAT=Text&CMD=Put";
+		
+		String[] connectionInfo = connectTo(putBLAST);
+		
+		// Extract request ID from value attribute in <label for="rid"> tag
 		String rid = null;
-		Pattern p = Pattern.compile("value=\"(.*?)\"");  // use lazy not greedy
+		String target = "<label for=\"rid\">";
+		Pattern p = Pattern.compile("value=\"(.*?)\"");
 		Matcher m;
-		while ((inputLine = input.readLine()) != null) {
-			if (inputLine.contains("<label for=\"rid\">")) {
-				System.out.println(inputLine);
-				m = p.matcher(inputLine);
+		String[] lines = connectionInfo[0].split("\n");
+		for (String line : lines) {
+			if (line.contains(target)) {
+				m = p.matcher(line);
 				if (m.find()) {
 					rid = m.group(1);
 				}	
 			}
 		}
 		
-		System.out.println(rid);
-		input.close();
+		System.out.println("Request ID: " + rid);
+
+		// Get request
+		String getBLAST = "https://www.ncbi.nlm.nih.gov/blast/Blast.cgi?RID="+rid+"&FORMAT_TYPE=JSON2_S&CMD=Get";
+		Thread.sleep(60000);
+		connectionInfo = connectTo(getBLAST);
 		
-		rid = "GMZMJ277015"; // for testing purposes to ensure the get request works, 
-		// until i have a second thread to monitor when put request completes
-		
-		// Get
-		URL fromBLAST = new URL("https://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=GET&RID="+rid+"&FORMAT_TYPE=JSON2_S");
-		URLConnection connection2 = fromBLAST.openConnection();
-		input = new BufferedReader(
-				new InputStreamReader(connection2.getInputStream()));
-		StringBuilder sb2 = new StringBuilder();
-		while ((inputLine = input.readLine()) != null) {
-			System.out.println(inputLine);
-			sb2.append(inputLine);
+		while (!connectionInfo[1].equals("application/json")) {
+			System.out.println("Request processing, sleeping one minute...");
+			Thread.sleep(60000);
+			connectionInfo = connectTo(getBLAST);
 		}
 		
-		input.close();
+		System.out.println(connectionInfo[0] + " " + connectionInfo[1]);
+		// NOTE: LIKELY WILL NEED TO FIX THE WHILE LOOP TO ACCOUNT FOR ERRORS, SUCH AS 
+		// ERROR 502 OR PERPETUAL "Status=WAITING" 
+		// identical problem to latter: https://www.biostars.org/p/237886/
 		
 		// NOTE: Will need to fix AlignmentFileParser so that the parsing is 
 		// flexible that it searches until it finds "hsps" or "description" etc, instead 
@@ -72,4 +72,26 @@ public class Test {
 		// Get worked with my last edit which used request id from old
 		// Put request that had already completed. (request ids are good for a day or so)
 	}
+	
+	// returns input
+	public static String[] connectTo(String link) throws IOException {
+		String[] result = new String[2];
+		URLConnection conn = new URL(link).openConnection();
+		BufferedReader input = new BufferedReader(
+							   new InputStreamReader(conn.getInputStream()));
+		
+		StringBuilder sb = new StringBuilder();
+		String inputLine;
+		
+		while ((inputLine = input.readLine()) != null) {
+			sb.append(inputLine + "\n");
+		}
+		
+		input.close();
+		result[0] = sb.toString();
+		result[1] = conn.getContentType();
+		return result;
+	}
+	
+	
 }
