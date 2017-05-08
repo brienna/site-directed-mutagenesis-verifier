@@ -1,8 +1,5 @@
 package alignmentparser;
 
-import java.nio.file.*;
-import java.util.Scanner;
-import java.io.*;
 import alignmentparser.json.*;
 
 /**
@@ -12,50 +9,12 @@ import alignmentparser.json.*;
  *
  */
 public class AlignmentFileParser {
-	private static Scanner sc = new Scanner(System.in);
-	private File alignmentFile;
 	private Query query;
 	private Subject subject;
 	private String midline;
 	
-	public void uploadFile() {
-		// Prompt user to input a Path object for the file
-		System.out.print("Input path of BLAST alignment file: ");
-		String s = sc.nextLine();  // read the whole line
-		// Get Path object for the file
-		Path alignmentFilePath = Paths.get(s);
-		// Quit the program if the path leads to no file
-		if (Files.exists(alignmentFilePath)) {
-			// Convert the Path object to a File object
-			alignmentFile = alignmentFilePath.toFile();
-		} else {
-			System.out.println("File doesn't exist.");
-			System.exit(0);
-		}
-	}
-	
-	// change the try and catch block to throwing
-	// because i'm not actually doing anything here to handle the exception?
-	private JSONObject readFile() {
-		StringBuilder sb = new StringBuilder();
-		// Connect character input stream to file
-		try (BufferedReader in = new BufferedReader(
-								 new FileReader(alignmentFile))) {
-			// Read and append records in file to StringBuilder
-			String line;
-			while ((line = in.readLine()) != null) {
-				sb.append(line);
-			}
-		} catch (IOException e) {  
-			System.out.println(e);
-		}
-		// Convert StringBuilder to JSON object
-		JSONObject json = new JSONObject(sb.toString());
-		return json;
-	}
-	
-	public void parseFile() {
-		JSONObject json = readFile();
+	public void parseFile(JSONObject alignment) {
+		JSONObject json = alignment;
 		
 		// Access nested fields
 		JSONArray level2 = json.getJSONArray("BlastOutput2");

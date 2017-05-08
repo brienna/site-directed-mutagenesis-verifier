@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.*;
 
+import alignmentparser.json.JSONObject;
+
 /**
  * Analyzes the alignment object created by AlignmentFileParser.
  * @author Brienna
@@ -21,11 +23,10 @@ public class AlignmentAnalyzer {
 		midline = m;
 	}
 	
-	public static void beginAnalysis(String[] targetMutations) throws IOException {			
+	public static void beginAnalysis(JSONObject alignment, String[] targetMutations) throws IOException {			
 		// Create alignment parser
 		AlignmentFileParser parser = new AlignmentFileParser();	
-		parser.uploadFile();
-		parser.parseFile();
+		parser.parseFile(alignment);
 		
 		// Create alignment object
 		Query q = parser.getQuery();
