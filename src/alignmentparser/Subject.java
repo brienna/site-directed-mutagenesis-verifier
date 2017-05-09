@@ -24,7 +24,7 @@ public class Subject {
 		sequence = hseq;
 		start = from;
 		end = to;
-		record = fetchRecord();
+		record = fetchRecord(id);
 		posOfCDS = parseForCDS();
 	}
 	
@@ -68,12 +68,12 @@ public class Subject {
 		return posOfCDS;
 	}
 
-	private JSONObject fetchRecord() {
+	public static JSONObject fetchRecord(String accession) {
 		JSONObject rec = new JSONObject();
 		try {
 	      // e post to Entrez
 		  // // https://www.ncbi.nlm.nih.gov/books/NBK25498/#chapter3.Application_2_Converting_access
-	      String link = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/epost.fcgi?db=nucleotide&id=" + id;
+	      String link = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/epost.fcgi?db=nucleotide&id=" + accession;
 	      URLConnection connection = new URL(link).openConnection();
 	      connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
 	      connection.connect(); // inputstreamreader does this, can delete

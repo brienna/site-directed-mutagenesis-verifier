@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.HashMap;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,17 +37,21 @@ public class Main {
 		System.out.println(query);
 		
 		// Send put request to BLAST engine to get request ID
-		String rid = putBLAST(query);
+		HashMap<String, String> putInfo = putBLAST(query);
 		
 		// Send get request to BLAST engine to get alignment file
-		JSONObject alignment = getBLAST(rid);
+		JSONObject alignment = getBLAST(putInfo);
 		AlignmentAnalyzer.beginAnalysis(alignment, args);
 	}
 	
-	private static JSONObject getBLAST(String rid) throws IOException, InterruptedException {
+	private static JSONObject getBLAST(HashMap<String, String> putInfo) throws IOException, InterruptedException {
+		String rid = putInfo.get("rid");
+		String rtoe = putInfo.get("rtoe");
+		
 		String getBLAST = "https://www.ncbi.nlm.nih.gov/blast/Blast.cgi?RID="+rid+"&FORMAT_TYPE=JSON2_S&CMD=Get";
-		System.out.println("Request processing, sleeping one minute...");
-		Thread.sleep(60000);
+		System.out.println("Request ID: " + rid);
+		System.out.println("Request processing, sleeping " + rtoe + " seconds");
+		Thread.sleep(Integer.parseInt(rtoe) * 1000);
 		String[] connectionInfo = connectTo(getBLAST);
 		
 		while (!connectionInfo[1].equals("application/json")) {
@@ -61,9 +66,17 @@ public class Main {
 		return json;
 	}
 	
-	private static String putBLAST(String query) throws IOException {
+	private static HashMap<String, String> putBLAST(String query) throws IOException {
 		System.out.print("Enter accession number: ");
 		String accession = sc.nextLine();
+		
+		// Check if record exists for accession number
+		JSONObject record = Subject.fetchRecord(accession);
+		if (record.length() == 0) {
+			System.out.println("No record found for entered accession number.");
+			System.exit(0);
+		} 
+			
 		System.out.println("Accession number: " + accession);
 		System.out.println("Sending request to BLAST engine...");
 		String putBLAST = "https://www.ncbi.nlm.nih.gov/blast/Blast.cgi?QUERY="+query
@@ -83,10 +96,11 @@ public class Main {
 				rtoe = m.group(2);
 			}
 		}
-
-		System.out.println("Request ID: " + rid);
-		System.out.println("Estimated time to completion: " + rtoe + " seconds");
-		return rid;
+	
+		HashMap<String, String> map = new HashMap<String, String>();
+		map.put("rid", rid);
+		map.put("rtoe", rtoe);
+		return map;
 	}
 	
 	// Reusable URL connection function
