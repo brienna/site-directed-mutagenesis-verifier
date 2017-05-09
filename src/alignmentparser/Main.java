@@ -69,21 +69,23 @@ public class Main {
 		String putBLAST = "https://www.ncbi.nlm.nih.gov/blast/Blast.cgi?QUERY="+query
 				+ "&ENTREZ_QUERY="+accession+"&DATABASE=nr&PROGRAM=blastn&WORD_SIZE=28&FORMAT=Text&CMD=Put";
 		String[] connectionInfo = connectTo(putBLAST);
-		// Extract request ID from value attribute in <label for="rid"> tag
+		
+		// Parse rid and rtoe (estimated time to completion)
 		String rid = null;
-		String target = "<label for=\"rid\">";
-		Pattern p = Pattern.compile("value=\"(.*?)\"");
-		Matcher m;
-		String[] lines = connectionInfo[0].split("\n");
-		for (String line : lines) {
-			if (line.contains(target)) {
-				m = p.matcher(line);
-				if (m.find()) {
-					rid = m.group(1);
-				}	
+		String rtoe = null;
+		Pattern p = Pattern.compile("(?m)^ {4}R(?:(ID|TOE)) = (.*)");
+		Matcher m = p.matcher(connectionInfo[0]);
+		while (m.find()) {
+			if (m.group(1).equals("ID")) {
+				rid = m.group(2);
+			} 
+			if (m.group(1).equals("TOE")) {
+				rtoe = m.group(2);
 			}
 		}
+
 		System.out.println("Request ID: " + rid);
+		System.out.println("Estimated time to completion: " + rtoe + " seconds");
 		return rid;
 	}
 	
