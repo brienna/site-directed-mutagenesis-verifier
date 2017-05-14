@@ -34,36 +34,74 @@ public class Main {
 		
 		// Upload query sequence
 		String query = Query.uploadQueryFile();
-		System.out.println(query);
+		System.out.println("Query is " + query);
 		
-		// Send put request to BLAST engine to get request ID
+		// Send search request and parse out request ID
 		HashMap<String, String> putInfo = putBLAST(query);
+		System.out.println("Request ID is " + putInfo.get("rid"));
 		
-		// Send get request to BLAST engine to get alignment file
+		// Check and handle status of search request
+		checkSearchStatus(putInfo);
+		
+		// Retrieve and display results
 		JSONObject alignment = getBLAST(putInfo);
 		AlignmentAnalyzer.beginAnalysis(alignment, args);
 	}
 	
 	private static JSONObject getBLAST(HashMap<String, String> putInfo) throws IOException, InterruptedException {
 		String rid = putInfo.get("rid");
-		String rtoe = putInfo.get("rtoe");
-		
 		String getBLAST = "https://www.ncbi.nlm.nih.gov/blast/Blast.cgi?RID="+rid+"&FORMAT_TYPE=JSON2_S&CMD=Get";
-		System.out.println("Request ID: " + rid);
-		System.out.println("Request processing, sleeping " + rtoe + " seconds");
-		Thread.sleep(Integer.parseInt(rtoe) * 1000);
-		String[] connectionInfo = connectTo(getBLAST);
+		String connectionInfo = connectTo(getBLAST);
 		
-		while (!connectionInfo[1].equals("application/json")) {
-			System.out.println("Requested page is incorrectly formatted as " + connectionInfo[1]);
-			System.out.println("Request processing, sleeping one minute...");
-			Thread.sleep(60000);
-			connectionInfo = connectTo(getBLAST);
+		System.out.println(connectionInfo);
+		JSONObject json = new JSONObject(connectionInfo);
+		return json;
+	}
+	
+	private static String parseSearchStatus(HashMap<String, String> putInfo) throws IOException { 
+		// Build the connection
+		String rid = putInfo.get("rid");
+		String url = "https://www.ncbi.nlm.nih.gov/blast/Blast.cgi?RID="+rid+"&FORMAT_OBJECT=SearchInfo&CMD=Get";
+		String connectionInfo = connectTo(url);
+		
+		// Parse search status from QBlastInfo block
+		String status = null;
+		Pattern p = Pattern.compile("(?m)Status=(.*)");
+		Matcher m = p.matcher(connectionInfo);
+		if (m.find()) {
+			status = m.group(1);
 		}
 		
-		System.out.println(connectionInfo[0] + " " + connectionInfo[1]);
-		JSONObject json = new JSONObject(connectionInfo[0]);
-		return json;
+		return status;
+	}
+	
+	private static void checkSearchStatus(HashMap<String, String> putInfo) throws IOException, InterruptedException {
+		// Sleep the estimated time to completion
+		int sleepTime = Integer.parseInt(putInfo.get("rtoe"));
+		System.out.println("Request processing, sleeping " + sleepTime + " seconds");
+		Thread.sleep(sleepTime * 1000);  
+		
+		boolean ready = false;
+		while (!ready) {
+			// Sleep 10 seconds, then check status
+			Thread.sleep(10000);
+			String status = parseSearchStatus(putInfo);
+			if (status.equals("WAITING")) {
+				System.out.println("Still searching...");
+			} else if (status.equals("FAILED")) {
+				System.out.println("Search failed.");
+				System.exit(0);
+			} else if (status.equals("UNKNOWN")) {
+				System.out.println("Search expired.");
+				System.exit(0);
+			} else if (status.equals("READY")) {
+				System.out.println("Search complete, retrieving results...");
+				ready = true;
+			} else {
+				System.out.println("Something unexpected has occurred.");
+				System.exit(0);
+			}
+		}
 	}
 	
 	private static HashMap<String, String> putBLAST(String query) throws IOException {
@@ -76,18 +114,18 @@ public class Main {
 			System.out.println("No record found for entered accession number.");
 			System.exit(0);
 		} 
-			
-		System.out.println("Accession number: " + accession);
+
+		System.out.println("Accession number is " + accession);
 		System.out.println("Sending request to BLAST engine...");
 		String putBLAST = "https://www.ncbi.nlm.nih.gov/blast/Blast.cgi?QUERY="+query
 				+ "&ENTREZ_QUERY="+accession+"&DATABASE=nr&PROGRAM=blastn&WORD_SIZE=28&FORMAT=Text&CMD=Put";
-		String[] connectionInfo = connectTo(putBLAST);
+		String connectionInfo = connectTo(putBLAST);
 		
 		// Parse rid and rtoe (estimated time to completion)
 		String rid = null;
 		String rtoe = null;
 		Pattern p = Pattern.compile("(?m)^ {4}R(?:(ID|TOE)) = (.*)");
-		Matcher m = p.matcher(connectionInfo[0]);
+		Matcher m = p.matcher(connectionInfo);
 		while (m.find()) {
 			if (m.group(1).equals("ID")) {
 				rid = m.group(2);
@@ -104,8 +142,7 @@ public class Main {
 	}
 	
 	// Reusable URL connection function
-	private static String[] connectTo(String link) throws IOException {
-		String[] result = new String[2];
+	private static String connectTo(String link) throws IOException {
 		URLConnection conn = new URL(link).openConnection();
 		BufferedReader input = new BufferedReader(
 							   new InputStreamReader(conn.getInputStream()));
@@ -118,26 +155,17 @@ public class Main {
 		}
 		
 		input.close();
-		result[0] = sb.toString();
-		result[1] = conn.getContentType();
-		return result;
+		return sb.toString();
 	}
 }
 
-/* NOTES:
- * // https://biostars.org/p/83158/
-	// https://ncbi.github.io/blast-cloud/dev/api.html
-	// might be worth looking at alextblog.blogspot.cz/2012/05/ncbi-blast-jaxb-biojava-blasting-like.html
- * 		// NOTE: LIKELY WILL NEED TO FIX THE WHILE LOOP TO ACCOUNT FOR ERRORS, SUCH AS 
-		// ERROR 502 OR PERPETUAL "Status=WAITING" 
-		// identical problem to latter: https://www.biostars.org/p/237886/
-		
-		// NOTE: Will need to fix AlignmentFileParser so that the parsing is 
-		// flexible that it searches until it finds "hsps" or "description" etc, instead 
-		// of specifically being told to go down level by level 
-		// IMPORTANT NOTE: Need to add a second thread to monitor progress of Put, because 
-		// Get won't work until Put is done, sometimes quickly sometimes slowly. 
-		// Get worked with my last edit which used request id from old
-		// Put request that had already completed. (request ids are good for a day or so)
-		 */
+/* 
+ * NOTES:
+ * https://biostars.org/p/83158/
+ * https://ncbi.github.io/blast-cloud/dev/api.html
+ * might be worth looking at alextblog.blogspot.cz/2012/05/ncbi-blast-jaxb-biojava-blasting-like.html
+ * NOTE: LIKELY WILL NEED TO FIX THE WHILE LOOP TO ACCOUNT FOR ERRORS, SUCH AS 
+ * ERROR 502 OR PERPETUAL "Status=WAITING" 
+ * identical problem to latter: https://www.biostars.org/p/237886/
+*/
 
